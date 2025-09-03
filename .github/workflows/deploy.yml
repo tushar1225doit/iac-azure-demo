@@ -4,48 +4,55 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # allow manual trigger
+  workflow_dispatch: # allow manual trigger from GitHub Actions UI
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # Step 2: Setup Terraform
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: 1.6.6
 
+    # Step 3: Azure Login (service principal JSON from AZURE_CREDENTIALS secret)
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    # Step 4: Terraform Init
     - name: Terraform Init
       run: terraform init
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
+    # Step 5: Terraform Plan
     - name: Terraform Plan
       run: terraform plan -out=tfplan
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
+    # Step 6: Terraform Apply
     - name: Terraform Apply
       run: terraform apply -auto-approve tfplan
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
