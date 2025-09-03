@@ -66,12 +66,7 @@ variable "admin_username" {
   default     = "azureuser"
 }
 
-# SSH Public Key Path
-variable "ssh_public_key" {
-  description = "Path to the SSH public key for VM authentication"
-  type        = string
-  default     = "~/.ssh/id_rsa.pub"
-}
+
 
 # --------------------------
 # Storage Account
