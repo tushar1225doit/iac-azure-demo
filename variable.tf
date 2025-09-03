@@ -83,3 +83,7 @@ variable "storage_account_prefix" {
   type        = string
   default     = "st"
 }
+variable "ssh_public_key" {
+  description = "The SSH public key for the VM"
+  type        = string
+}
